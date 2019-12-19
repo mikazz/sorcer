@@ -1,0 +1,3 @@
+https://realpython.com/asynchronous-tasks-with-django-and-celery/
+
+https://czterytygodnie.pl/wprowadzenie-do-redis-a/
