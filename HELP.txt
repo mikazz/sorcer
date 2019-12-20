@@ -5,3 +5,6 @@ https://czterytygodnie.pl/wprowadzenie-do-redis-a/
 
 # glowny pomysl:
 https://blog.miguelgrinberg.com/post/using-celery-with-flask
+
+# problemy
+https://blog.daftcode.pl/working-with-asynchronous-celery-tasks-lessons-learned-32bb7495586b
