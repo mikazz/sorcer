@@ -11,6 +11,7 @@ app.config['CELERY_RESULT_BACKEND'] = 'redis://localhost:6379/0'
 PORT = 5000
 HOST = "127.0.0.1"
 
+# Celery ---------------------------------------------------------------------------------------------------------------
 
 def make_celery(app):
     """
@@ -29,7 +30,6 @@ def make_celery(app):
     celery.Task = ContextTask
     return celery
 
-
 celery = make_celery(app)
 
 @celery.on_after_configure.connect
@@ -46,11 +46,13 @@ def setup_periodic_tasks(sender, **kwargs):
         log.s('Monday morning log!'),
     )
 
+# Tasks ----------------------------------------------------------------------------------------------------------------
 
 @celery.task(name="tasks.add")
 def add(x, y):
     return x + y
 
+# Routes ---------------------------------------------------------------------------------------------------------------
 
 @app.route("/test")
 def hello_world(x=16, y=16):

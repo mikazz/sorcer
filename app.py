@@ -1,7 +1,3 @@
-import os
-import random
-import time
-
 from flask import Flask
 from celery import Celery
 
