@@ -1,3 +1,6 @@
-flask
-celery
+Flask
+Flask-Bootstrap
+Flask-Testing
+Flask-WTF
 redis
+rq
