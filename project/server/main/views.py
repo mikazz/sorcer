@@ -20,7 +20,7 @@ def get_tasks():
     with Connection(redis.from_url(current_app.config["REDIS_URL"])):
         q = Queue()
 
-        return jsonify(q), 202
+        return jsonify("ok"), 202
 
 
 @main_blueprint.route("/tasks", methods=["POST"])
