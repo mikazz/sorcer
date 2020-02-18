@@ -26,7 +26,7 @@ def get_tasks():
 @main_blueprint.route("/tasks", methods=["POST"])
 def run_task():
     task_type = request.form["type"]
-    with Connection(redis.from_url(current_app.config["redis://redis:6379/0"])):
+    with Connection(redis.from_url(current_app.config["REDIS_URL"])):
         q = Queue()
         task = q.enqueue(create_task, task_type)
     response_object = {
