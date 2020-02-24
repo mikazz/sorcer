@@ -1,7 +1,9 @@
 from rq import Queue, Connection
 from flask import Flask, request, jsonify, abort, send_file
 from redis import Redis
+from redis import Connection as BasicConnection
 from jobs import long_job, get_text_job, get_images_job, url_to_page_name
+
 
 import zipfile
 import io
@@ -17,7 +19,24 @@ app.register_blueprint(rq_dashboard.blueprint, url_prefix="/rq")
 
 HOST = "127.0.0.1"
 PORT = 5000
-DEBUG = True
+DEBUG = False
+
+
+@app.route('/')
+def home():
+    try:
+        basic_connection = BasicConnection()
+        basic_connection.connect()
+
+    except Exception as e:
+        response_object = {"status": "failed",
+                           "details": str(e)
+                           }
+    else:
+        response_object = {"status": "ok"}
+
+    return jsonify(response_object)
+
 
 @app.route('/long_job', methods=['POST'])
 def run_long_job():
@@ -62,6 +81,7 @@ def run_job():
     elif function_name == "get_images":
         job_func_name = get_images_job
 
+    # such function dont exist
     # else:
     #     abort(400)
 
@@ -70,6 +90,7 @@ def run_job():
         job = q.enqueue(job_func_name, page_url=page_url)
 
     response_object = {
+        'status': 'success',
         'data': {
             'job_id': job.get_id(),
             'job_func_name': job.func_name,

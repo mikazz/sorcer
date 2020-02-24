@@ -1,3 +1,5 @@
 redis
 rq
 rq_dashboard
+flask
+flask_testing
