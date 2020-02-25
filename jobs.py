@@ -55,10 +55,6 @@ def long_job(duration):
     return {'job': True}
 
 
-
-
-
 if __name__ == "__main__":
     # testing
     get_text_job("https://www.google.com/")
-    pass

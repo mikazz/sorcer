@@ -1,0 +1,26 @@
+@app.route('/long_job', methods=['POST'])
+def run_long_job():
+    """
+        curl -X POST -F "duration=3" http://127.0.0.1:5000/long_job
+    """
+
+    job_duration = int(request.form['duration'])
+    with Connection(connection=Redis()):
+        q = Queue()
+        job = q.enqueue(long_job, job_duration)
+
+    response_object = {
+        'data': {
+            'job_id': job.get_id(),
+            'job_status': job.get_status(),
+            'job_result': job.result,
+            'job_timeout': job.timeout,
+            'job_is_started': job.is_started,
+            'job_started_at': job.started_at,
+            'job_is_queued': job.is_queued,
+            'job_enqueued_at': job.enqueued_at,
+            'job_ended_at': job.ended_at,
+            'job_page_url': f"http://{HOST}:{PORT}/jobs/{job.get_id()}",
+        }
+    }
+    return jsonify(response_object), 202

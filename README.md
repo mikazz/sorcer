@@ -1,16 +1,7 @@
 # sorcer
-Service Oriented Computing Scheduler Environment
 
 ## Using
 Redis - message broker
-
-## Workflow
-
-Our goal is to develop a Flask application that works in conjunction with Redis Queue to handle long-running processes outside the normal request/response cycle.
-
-* The end user kicks off a new task via a POST request to the server-side
-* Within the view, a task is added to the queue and the task id is sent back to the client-side
-* Using AJAX, the client continues to poll the server to check the status of the task while the task itself is running in the background
 
 ## Installing Redis
 
@@ -47,6 +38,18 @@ $ docker-compose up -d --build
 
 Open your browser to http://localhost:5004 to view the app or to http://localhost:9181 to view the RQ dashboard.
 
-## Want to learn how to build this?
+## Architektura
 
-https://testdriven.io/asynchronous-tasks-with-flask-and-redis-queue
+* Walidacja i zabezpieczenie user input
+* Dane o taskach nie moga znikac po restarcie serwera
+* Preferowana formą wykonania asynchronicznego - osobny worker mogący działać potencjalnie na innej maszynie i jakiś system komunikacji między nimi (np. poprzez RabbitMQ albo Redisa).
+* Zaprojektowaniu i zaimplementowanie REST API dla tego systemu.
+* Mikroserwis powinien być napisany w języku Python.
+* Rozwiązanie powinno zawierać testy automatyczne.
+* Testy powinny być napisane w jakimś frameworku testowym np. wbudowany unittest lub pytest i powinny być uruchamialne niezależnie.
+* Uruchomienie mikroserwisu powinno być maksymalnie zautomatyzowane (preferowane użycie Dockera lub podobnych narzędzi).
+* Zlecenie pobrania tekstu z danej strony internetowej i zapis jej w systemie.
+* Zlecenie pobrania wszystkich obrazków z danej strony i zapis ich w systemie.
+* Obrazki wcale nie muszą mieć taga src.
+* Sprawdzenie statusu zleconego zadania.
+* Możliwość pobrania stworzonych zasobów (tekstu i obrazków)
