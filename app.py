@@ -2,7 +2,7 @@ from rq import Queue, Connection
 from flask import Flask, request, jsonify, abort, send_file
 from redis import Redis
 from redis import Connection as BasicConnection
-from jobs import get_text_job, get_images_job, url_to_page_name
+from jobs import get_text_job, get_images_job, url_to_page_name, long_job
 
 
 import zipfile
@@ -54,8 +54,6 @@ def run_job():
     page_url = str(request.form['page_url'])
     function_name = str(request.form['function'])
 
-    print("FUNCTION", function_name)
-
     if function_name == "get_text":
         job_func_name = get_text_job
 
@@ -68,7 +66,7 @@ def run_job():
 
     with Connection(connection=Redis()):
         q = Queue()
-        job = q.enqueue(job_func_name, page_url=page_url)
+        job = q.enqueue(job_func_name, page_url=page_url, job_timeout=60)
 
     response_object = {
         'status': 'success',
@@ -186,6 +184,35 @@ def get_jobs():
             'queue_size': f'{len(q)}'
         }
     return jsonify(response_object)
+
+
+@app.route('/long_job', methods=['POST'])
+def run_long_job():
+    """
+        curl -X POST -F "duration=3" http://127.0.0.1:5000/long_job
+    """
+
+    job_duration = int(request.form['duration'])
+    with Connection(connection=Redis()):
+        q = Queue()
+        job = q.enqueue(long_job, job_duration, job_timeout=60)
+
+    response_object = {
+        'data': {
+            'job_id': job.get_id(),
+            'job_status': job.get_status(),
+            'job_result': job.result,
+            'job_timeout': job.timeout,
+            'job_is_started': job.is_started,
+            'job_started_at': job.started_at,
+            'job_is_queued': job.is_queued,
+            'job_enqueued_at': job.enqueued_at,
+            'job_ended_at': job.ended_at,
+            'job_page_url': f"http://{HOST}:{PORT}/jobs/{job.get_id()}",
+        }
+    }
+    return jsonify(response_object), 202
+
 
 
 if __name__ == '__main__':
