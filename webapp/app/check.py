@@ -1,6 +1,6 @@
 from flask_testing import TestCase
 import unittest
-from app import app
+from webapp.app.app import app
 
 
 class BaseTestCase(TestCase):

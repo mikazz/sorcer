@@ -8,7 +8,7 @@ import mimetypes
 from selenium import webdriver
 import uuid
 
-CHROME_DRIVER_PATH = 'chromedriver_win32/chromedriver.exe'
+CHROME_DRIVER_PATH = '../../chromedriver_win32/chromedriver.exe'
 
 
 def fix_bad_file_name(file_name):

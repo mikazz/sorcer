@@ -5,7 +5,7 @@ from rq import Queue, Connection
 from flask import Flask, request, jsonify, abort, send_file
 from redis import Redis
 from redis import Connection as BasicConnection
-from jobs import get_text_job, get_images_job, url_to_page_name, long_job
+from webapp.app.jobs import get_text_job, get_images_job, url_to_page_name, long_job
 
 import zipfile
 import io

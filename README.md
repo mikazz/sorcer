@@ -17,6 +17,13 @@
 * Możliwość pobrania stworzonych zasobów (tekstu i obrazków)
 
 
+## Uwagi
+* Celery oraz RQ nie jest dostatecznie wspierany na platformie windowsa. Wolałem jednak nie tracić czasu na konfiguracje, gdyż
+wygodniej i częściej mam dostęp do windowsa, więc stworzony jest własny worker (nie obsługuje jednak linuxowego forka)
+* Dla linuxa można także włączyć system https://python-rq.org/patterns/supervisor/ w
+webapp/uwsgi_flask_nginx
+
+
 ## Requirements
 Python 3.7+
 Redis - Message broker
@@ -24,7 +31,18 @@ RQ (Redis Queue) - Queueing jobs and processing them in the background with work
 Selenium and Webdriver - Sometimes no src is given..since it is getting rendered at runtime, so something like selenium would be useful
 
 ## Quick Start
+### How to run it
 
+Once you have `docker-compose` installed, just create the images and the containers
+through the command:
+
+```
+$ docker-compose up -d
+
+```
+
+This will create the two containers, the one with the Flask application listening
+port `5000`, and the one with the `Redis` service (listening port `6379`).
 
 ## Usage
 1. Run app.py
