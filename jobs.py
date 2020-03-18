@@ -2,10 +2,22 @@ import time
 import re
 import requests
 import os
-import base64
 from bs4 import BeautifulSoup
-from urllib.parse import urlparse, urljoin
-import imghdr
+from urllib.parse import urlparse
+import mimetypes
+from selenium import webdriver
+import uuid
+
+CHROME_DRIVER_PATH = 'chromedriver_win32/chromedriver.exe'
+
+
+def fix_bad_file_name(file_name):
+    """
+        Replace corrupted file name with a generated id
+    """
+    file_name_extension = re.search(r"(\..*)$", file_name).group(1)
+    file_name = str(uuid.uuid1().int)
+    return "unknown_name_" + file_name + file_name_extension
 
 
 def url_to_page_name(url):
@@ -57,75 +69,51 @@ def get_images_job(page_url):
     """
         Request given page and extract images
     """
-
     directory_name = url_to_page_name(page_url)
+    browser = webdriver.Chrome(CHROME_DRIVER_PATH)
+
+    browser.get(page_url)
+    data = BeautifulSoup(browser.page_source, 'html.parser')
+
     if not os.path.exists(directory_name):
         os.makedirs(directory_name)
 
-    soup = BeautifulSoup(requests.get(page_url).content, "html.parser")
-
-    urls = []
-    for img in soup.find_all("img"):
-        img_url = img.attrs.get("src")
-        if not img_url:
-            # if img does not contain src attribute, just skip
-            continue
-        img_url = urljoin(page_url, img_url)
-
-        try:
-            pos = img_url.index("?")
-            img_url = img_url[:pos]
-        except ValueError:
-            pass
-
-            # finally, if the url is valid
-        if is_valid(img_url):
-                urls.append(img_url)
-
-    print(urls)
-    for url in urls:
-        #file_name = re.search(r'/([\w_-]+[.](jpg|gif|png|jpeg|webp))$', url)
+    # All the Src
+    for src in data.find_all('img'):
+        url = src['src']
 
         file_name = get_image_name_from_url(url)
 
-        with open(os.path.join(f'{directory_name}/' + file_name), 'wb') as f:
-            if 'http' not in url:
-                # sometimes an image source can be relative
-                # if it is provide the base url which also happens
-                # to be the site variable atm.
-                url = '{}{}'.format(page_url, url)
-            response = requests.get(url)
-            f.write(response.content)
+        # Sometimes an image source can be relative if it is provide the base url which also happens to be the site variable atm.
+        if 'http' not in url:
+            url = '{}{}'.format(page_url, url)
 
+        response = requests.get(url)
 
-def get_images_with_src(page_url):
-    """Request given page and extract images"""
+        if bool(re.search(r"(\..*)$", file_name)) is False:
+            # The type is in the content-type header. For mapping this to a file extension use mimetypes
+            type = response.headers['Content-Type']
+            type = mimetypes.guess_extension(type, strict=True)
 
-    directory_name = url_to_page_name(page_url)
+            try:
+                file_name = file_name + type
+            except TypeError:
+                # Unknown type (type=None)
+                pass
 
-    response = requests.get(page_url)
-    soup = BeautifulSoup(response.text, 'html.parser')
-    img_tags = soup.find_all('img')
-
-    urls = [img['src'] for img in img_tags]
-
-    if not os.path.exists(directory_name):
-        os.makedirs(directory_name)
-
-    for url in urls:
-        file_name = re.search(r'/([\w_-]+[.](jpg|gif|png))$', url)
-
-        if file_name:
-            file_name = file_name.group(1)
-
+        try:
             with open(os.path.join(f'{directory_name}/' + file_name), 'wb') as f:
-                if 'http' not in url:
-                    # sometimes an image source can be relative
-                    # if it is provide the base url which also happens
-                    # to be the site variable atm.
-                    url = '{}{}'.format(page_url, url)
-                response = requests.get(url)
                 f.write(response.content)
+        except OSError:
+            # Invalid name
+            file_name = fix_bad_file_name(file_name)
+            with open(os.path.join(f'{directory_name}/' + file_name), 'wb') as f:
+                f.write(response.content)
+        except Exception:
+            pass
+
+    # That's all folks
+    browser.quit()
 
 
 def long_job(duration):
@@ -134,7 +122,6 @@ def long_job(duration):
 
 
 if __name__ == "__main__":
+    pass
     # testing
-    #get_text_job("https://www.google.com/")
-
-    get_images_job("https://www.wp.pl/")
+    get_images_job("https://www.google.pl")

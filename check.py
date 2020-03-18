@@ -34,14 +34,7 @@ class TestMainBlueprint(BaseTestCase):
         # Then
         self.assertEqual(response.status_code, 200)
 
-    # def test_long_job(self):
-    #     """
-    #         curl -X POST -F "duration=3" http://127.0.0.1:5000/long_job
-    #     """
-    #     response = self.client.post("/job", follow_redirects=True)
-    #     print(response)
-
-    def test_post_job(self):
+    def test_post_job_get_text(self):
         """
             Test Add Job
         """
@@ -54,10 +47,57 @@ class TestMainBlueprint(BaseTestCase):
 
         # When
         response = self.client.post('/job', data=payload)
-        print(response)
 
         # Then
         self.assertEqual("success", response.json['status'])
+        self.assertEqual(202, response.status_code)
+
+    def test_post_job_get_images(self):
+        """
+            Test Add Job
+        """
+
+        # Given
+        payload = {
+            "page_url": "https://www.google.com/",
+            "function": "get_images"
+        }
+
+        # When
+        response = self.client.post('/job', data=payload)
+
+        # Then
+        self.assertEqual("success", response.json['status'])
+        self.assertEqual(202, response.status_code)
+
+    def test_post_job_with_bad_function(self):
+        payload = {
+            "page_url": "https://www.google.com/",
+            "function": "get_"
+        }
+
+        response = self.client.post('/job', data=payload)
+        # 400 - Bad request
+        self.assertEqual(400, response.status_code)
+
+    def test_post_job_with_no_function(self):
+        payload = {
+            "page_url": "https://www.google.com/"
+        }
+
+        response = self.client.post('/job', data=payload)
+        # 400 - Bad request
+        self.assertEqual(400, response.status_code)
+
+    def test_post_long_job(self):
+        """
+            curl -X POST -F "duration=3" http://127.0.0.1:5000/long_job
+        """
+        payload = {
+            "duration": "3"
+        }
+        response = self.client.post("/long_job", data=payload, follow_redirects=True)
+        # 202 - Accepted
         self.assertEqual(202, response.status_code)
 
 

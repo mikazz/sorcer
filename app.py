@@ -1,21 +1,22 @@
+__author__ = "mikazz"
+__version__ = "1.0"
+
 from rq import Queue, Connection
 from flask import Flask, request, jsonify, abort, send_file
 from redis import Redis
 from redis import Connection as BasicConnection
 from jobs import get_text_job, get_images_job, url_to_page_name, long_job
 
-
 import zipfile
 import io
 import pathlib
-
 import rq_dashboard
 
 app = Flask(__name__)
 
+# RQ Dashboard configuration
 app.config.from_object(rq_dashboard.default_settings)
 app.register_blueprint(rq_dashboard.blueprint, url_prefix="/rq")
-
 
 HOST = "127.0.0.1"
 PORT = 5000
@@ -24,6 +25,9 @@ DEBUG = True
 
 @app.route('/')
 def home():
+    """
+        Home
+    """
     try:
         basic_connection = BasicConnection()
         basic_connection.connect()
@@ -59,8 +63,6 @@ def run_job():
 
     elif function_name == "get_images":
         job_func_name = get_images_job
-
-    # such function don't exist
     else:
         abort(400)
 
@@ -212,7 +214,6 @@ def run_long_job():
         }
     }
     return jsonify(response_object), 202
-
 
 
 if __name__ == '__main__':
