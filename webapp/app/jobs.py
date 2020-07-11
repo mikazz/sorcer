@@ -3,12 +3,12 @@ import re
 import requests
 import os
 from bs4 import BeautifulSoup
-from urllib.parse import urlparse
+from urllib.parse import urlparse, urljoin
 import mimetypes
 from selenium import webdriver
 import uuid
 
-CHROME_DRIVER_PATH = '../../chromedriver_win32/chromedriver.exe'
+CHROME_DRIVER_PATH = 'C:\\Users\\maodz\\Documents\\GitHub\\sorcer\\webapp\\app\\chromedriver_win32\\chromedriver.exe'
 
 
 def fix_bad_file_name(file_name):
@@ -87,10 +87,13 @@ def get_images_job(page_url):
         # Sometimes an image source can be relative if it is provide the base url which also happens to be the site variable atm.
         if 'http' not in url:
             url = '{}{}'.format(page_url, url)
+            #print(url)
+            #url = urljoin(page_url, url)
+            #print(test_url)
 
         response = requests.get(url)
 
-        if bool(re.search(r"(\..*)$", file_name)) is False:
+        if not bool(re.search(r"(\..*)$", file_name)):
             # The type is in the content-type header. For mapping this to a file extension use mimetypes
             type = response.headers['Content-Type']
             type = mimetypes.guess_extension(type, strict=True)
@@ -103,11 +106,15 @@ def get_images_job(page_url):
 
         try:
             with open(os.path.join(f'{directory_name}/' + file_name), 'wb') as f:
+            #with open(urljoin(directory_name, file_name), 'wb') as f:
                 f.write(response.content)
+
         except OSError:
             # Invalid name
             file_name = fix_bad_file_name(file_name)
+
             with open(os.path.join(f'{directory_name}/' + file_name), 'wb') as f:
+            #with open(urljoin(directory_name, file_name), 'wb') as f:
                 f.write(response.content)
         except Exception:
             pass
@@ -124,4 +131,4 @@ def long_job(duration):
 if __name__ == "__main__":
     pass
     # testing
-    get_images_job("https://www.google.pl")
+    get_images_job("http://www.google.pl/")

@@ -80,7 +80,7 @@ def run_job():
             'job_status_url': f"http://{HOST}:{PORT}/jobs/{job.get_id()}",
             'job_download_url': f"http://{HOST}:{PORT}/jobs/{job.get_id()}/download",
             'job_is_queued': job.is_queued,
-            'job_enqueued_at': job.enqueued_at,
+            'job_enqueued_at': job.enqueued_at
         }
     }
     return jsonify(response_object), 202  # ACCEPTED
